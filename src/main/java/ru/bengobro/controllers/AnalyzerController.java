@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -51,20 +50,20 @@ public class AnalyzerController {
         return Collections.singletonMap("average", analyzerService.getAverage());
     }
 
-    @GetMapping(value = "/get_max_ascending_sequence",
+    @GetMapping(value = "/get_max_ascending_sequences",
             produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     @Operation(summary = "Get max ascending sequences from a set of numbers")
     public Map<String, List<List<Long>>> getMaxAscendingSequences() {
         return Collections.singletonMap("max_ascending_sequences",
-                analyzerService.getMaxAscendingSequences());
+                analyzerService.getMaxAscendingOrDescendingSequences(true));
     }
 
-    @GetMapping(value = "/get_max_descending_sequence",
+    @GetMapping(value = "/get_max_descending_sequences",
             produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     @Operation(summary = "Get max descending sequences from a set of numbers")
     public Map<String, List<List<Long>>> getMaxDescendingSequences() {
         return Collections.singletonMap("max_descending_sequences",
-                analyzerService.getMaxDescendingSequences());
+                analyzerService.getMaxAscendingOrDescendingSequences(false));
     }
 
     @PostMapping("/read_file")
@@ -76,34 +75,4 @@ public class AnalyzerController {
                 new ResponseEntity<>(HttpStatus.OK) :
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-    @GetMapping("/operation")
-    public ResponseEntity<Map<String, Long>> getMinOrMax(@RequestBody Map<String, String> operation) {
-        if (operation.get("operation").equals("min_value")) {
-            return new ResponseEntity<>(Collections.singletonMap("min_value", analyzerService.getMinValue()), HttpStatus.OK);
-        } else if (operation.get("operation").equals("max_value")) {
-            return new ResponseEntity<>(Collections.singletonMap("max_value", analyzerService.getMaxValue()), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-//    @GetMapping("/operation")
-//    public ResponseEntity<Map<String, Double>> getAverageOrMedian(@RequestBody Map<String, String> operation) {
-//        if (operation.get("operation").equals("average")) {
-//            return new ResponseEntity<>(Collections.singletonMap("average", analyzerService.getAverage()), HttpStatus.OK);
-//        } else if (operation.get("operation").equals("median")) {
-//            return new ResponseEntity<>(Collections.singletonMap("median_value", analyzerService.getMedian()), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//    }
-//
-//    @GetMapping("/operation")
-//    public ResponseEntity<Map<String, List<List<Long>>>> getAscendingOrDescending(@RequestBody Map<String, String> operation) {
-//        if (operation.get("operation").equals("max_ascending_sequences")) {
-//            return new ResponseEntity<>(Collections.singletonMap("max_ascending_sequences", analyzerService.getMaxAscendingSequences()), HttpStatus.OK);
-//        } else if (operation.get("operation").equals("max_descending_sequences")) {
-//            return new ResponseEntity<>(Collections.singletonMap("max_descending_sequences", analyzerService.getMaxDescendingSequences()), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//    }
 }

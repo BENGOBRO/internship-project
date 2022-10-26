@@ -17,7 +17,6 @@ public class AnalyzerService {
 
     private List<Long> numbers;
 
-    //@Cacheable("file")
     public boolean readFile(String filePath) {
         File file = new File(filePath);
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -65,15 +64,23 @@ public class AnalyzerService {
         }
     }
 
-    @Cacheable("ascending_sequences")
-    public List<List<Long>> getMaxAscendingSequences() {
+    @Cacheable("ascending_descending_sequences")
+    public List<List<Long>> getMaxAscendingOrDescendingSequences(boolean isAscending) {
         List<List<Long>> result = new ArrayList<>();
         List<Long> currentList = new ArrayList<>();
         boolean newSeq = true;
         int size = 0;
         int max = 0;
+
+        if (!isAscending) {
+            Collections.reverse(numbers);
+        }
+
         for (int i = 1; i < numbers.size(); i++) {
             if (numbers.get(i) <= numbers.get(i - 1)) {
+                if (!isAscending) {
+                    Collections.reverse(currentList);
+                }
                 result.add(currentList);
                 newSeq = true;
                 max = Math.max(size, max);
@@ -96,44 +103,10 @@ public class AnalyzerService {
             }
         }
 
-        return getFinalResult(result, max);
-    }
-
-    @Cacheable("descending_sequences")
-    public List<List<Long>> getMaxDescendingSequences() {
-        List<List<Long>> result = new ArrayList<>();
-        List<Long> currentList = new ArrayList<>();
-        boolean newSeq = true;
-        int size = 0;
-        int max = 0;
-        for (int i = 1; i < numbers.size(); i++) {
-            if (numbers.get(i) >= numbers.get(i - 1)) {
-                result.add(currentList);
-                newSeq = true;
-                max = Math.max(size, max);
-                size = 0;
-                currentList = new ArrayList<>();
-            } else if (numbers.get(i) < numbers.get(i - 1) && newSeq) {
-                currentList.add(numbers.get(i - 1));
-                currentList.add(numbers.get(i));
-                size += 2;
-                newSeq = false;
-                if (i == numbers.size() - 1) {
-                    result.add(currentList);
-                }
-            } else if (numbers.get(i) < numbers.get(i - 1) && !newSeq) {
-                currentList.add(numbers.get(i));
-                size++;
-                if (i == numbers.size() - 1) {
-                    result.add(currentList);
-                }
-            }
+        if (!isAscending) {
+            Collections.reverse(numbers);
         }
 
-        return getFinalResult(result, max);
-    }
-
-    private List<List<Long>> getFinalResult(List<List<Long>> result, int max) {
         List<List<Long>> finalResult = new ArrayList<>();
         for (List<Long> longs : result) {
             if (longs.size() == max) {
@@ -148,8 +121,7 @@ public class AnalyzerService {
             @CacheEvict("min"),
             @CacheEvict("average"),
             @CacheEvict("median"),
-            @CacheEvict("ascending_sequences"),
-            @CacheEvict("descending_sequences"),
+            @CacheEvict("ascending_descending_sequences"),
             @CacheEvict("file")
     })
     public void evict() {}
