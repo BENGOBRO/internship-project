@@ -107,6 +107,10 @@ public class AnalyzerService {
             Collections.reverse(numbers);
         }
 
+        return getFinalResult(result, max);
+    }
+
+    private List<List<Long>> getFinalResult(List<List<Long>> result, int max) {
         List<List<Long>> finalResult = new ArrayList<>();
         for (List<Long> longs : result) {
             if (longs.size() == max) {
